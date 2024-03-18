@@ -26,7 +26,7 @@ class Vapid:
     def sign(self, claims):
         claim = claims
         if "exp" not in claim:
-            # Default to expiring 20 hours into the future (the max).
+            # Default to expiring 24 hours into the future (the max).
             # https://datatracker.ietf.org/doc/html/rfc8292#section-2
             exp = int(time.time()) + 86400
             # Correct the epoch offset if not the Unix standard.
