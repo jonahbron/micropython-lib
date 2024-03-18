@@ -30,16 +30,26 @@ def _from_b64url(data):
     return binascii.a2b_base64(data.replace(b"-", b"+").replace(b"_", b"/") + b"===")
 
 
-def _der_to_raw_signature(signed):
-    """Accept a DER signature and convert to a JWT signature binary.
+def _sig_der_to_jws(signed):
+    """Accept a DER signature and convert to JSON Web Signature bytes.
 
-    `cryptography` lib's signed result is a DER ASN.1 encoded signature.  JWT
-    needs ONLY the point coordinates concatenated as binary.
+    `cryptography` produces signatures encoded in DER ASN.1 binary format.
+    JSON Web Algorithm instead encodes the signature as the point coordinates
+    as bigendian byte strings concatenated.
 
     See https://datatracker.ietf.org/doc/html/rfc7518#section-3.4
     """
     r, s = utils.decode_dss_signature(signed)
     return r.to_bytes(32, "big") + s.to_bytes(32, "big")
+
+
+def _sig_jws_to_der(signed):
+    """Accept a JSON Web Signature and convert to a DER signature.
+
+    See `_sig_der_to_jws()`
+    """
+    r, s = int.from_bytes(signed[0:32], "big"), int.from_bytes(signed[32:], "big")
+    return utils.encode_dss_signature(r, s)
 
 
 class exceptions:
@@ -76,7 +86,7 @@ def encode(payload, key, algorithm="HS256"):
         if isinstance(key, int):
             key = ec.derive_private_key(key, ec.SECP256R1())
         signature = _to_b64url(
-            _der_to_raw_signature(
+            _sig_der_to_jws(
                 key.sign(header + b"." + payload, ec.ECDSA(hashes.SHA256()))
             )
         )
@@ -85,7 +95,7 @@ def encode(payload, key, algorithm="HS256"):
 
 
 def decode(token, key, algorithms=["HS256", "ES256"]):
-    if "HS256" not in algorithms or "ES256" not in algorithms:
+    if "HS256" not in algorithms and "ES256" not in algorithms:
         raise exceptions.InvalidAlgorithmError
 
     parts = token.encode().split(b".")
@@ -116,8 +126,12 @@ def decode(token, key, algorithms=["HS256", "ES256"]):
         if isinstance(key, bytes):
             key = ec.EllipticCurvePublicKey.from_encoded_point(key, ec.SECP256R1())
         try:
-            key.verify(signature, parts[0] + b"." + parts[1], ec.ECDSA(hashes.SHA256()))
-        except cryptography.exceptions.InvalidSignature:
+            key.verify(
+                _sig_jws_to_der(signature),
+                parts[0] + b"." + parts[1],
+                ec.ECDSA(hashes.SHA256()),
+            )
+        except cryptography.exceptions.InvalidSignature as e:
             raise exceptions.InvalidSignatureError
 
     if "exp" in payload:
