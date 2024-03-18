@@ -20,9 +20,8 @@ def _to_b64url(data):
 
 
 class Vapid:
-    def __init__(self, private_key, conf=None):
+    def __init__(self, private_key):
         self._private_key = private_key
-        self._conf = conf or {}
 
     def sign(self, claims):
         claim = claims
