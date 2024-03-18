@@ -10,10 +10,10 @@ try:
     import cryptography
     from cryptography import hashes, ec, serialization, utils
 
-    ec_supported = True
+    _ec_supported = True
 except ImportError:
     # No cryptography library available, no EC256 support.
-    ec_supported = False
+    _ec_supported = False
 
 
 def _to_b64url(data):
@@ -70,7 +70,7 @@ class exceptions:
 
 
 def encode(payload, key, algorithm="HS256"):
-    if not (algorithm == "HS256" or (ec_supported and algorithm == "ES256")):
+    if algorithm != "HS256" and algorithm != "ES256":
         raise exceptions.InvalidAlgorithmError
 
     header = _to_b64url(json.dumps({"typ": "JWT", "alg": algorithm}).encode())
@@ -83,6 +83,10 @@ def encode(payload, key, algorithm="HS256"):
             hmac.new(key, header + b"." + payload, hashlib.sha256).digest()
         )
     elif algorithm == "ES256":
+        if not _ec_supported:
+            raise exceptions.InvalidAlgorithmError(
+                "Required dependencies for ES256 are not available"
+            )
         if isinstance(key, int):
             key = ec.derive_private_key(key, ec.SECP256R1())
         signature = _to_b64url(
@@ -123,6 +127,11 @@ def decode(token, key, algorithms=["HS256", "ES256"]):
         if signature != calculated_signature:
             raise exceptions.InvalidSignatureError
     elif header["alg"] == "ES256":
+        if not _ec_supported:
+            raise exceptions.InvalidAlgorithmError(
+                "Required dependencies for ES256 are not available"
+            )
+
         if isinstance(key, bytes):
             key = ec.EllipticCurvePublicKey.from_encoded_point(key, ec.SECP256R1())
         try:
@@ -131,7 +140,7 @@ def decode(token, key, algorithms=["HS256", "ES256"]):
                 parts[0] + b"." + parts[1],
                 ec.ECDSA(hashes.SHA256()),
             )
-        except cryptography.exceptions.InvalidSignature as e:
+        except cryptography.exceptions.InvalidSignature:
             raise exceptions.InvalidSignatureError
 
     if "exp" in payload:
