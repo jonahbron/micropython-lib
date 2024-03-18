@@ -142,4 +142,4 @@ def decode(token, key, algorithms=["HS256", "ES256"]):
     return payload
 
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
