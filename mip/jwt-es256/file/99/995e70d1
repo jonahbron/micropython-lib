@@ -9,6 +9,7 @@ try:
     # Try importing from ucryptography port.
     import cryptography
     from cryptography import hashes, ec, serialization, utils
+
     ec_supported = True
 except ImportError:
     # No cryptography library available, no EC256 support.
@@ -38,7 +39,8 @@ def _der_to_raw_signature(signed):
     See https://datatracker.ietf.org/doc/html/rfc7518#section-3.4
     """
     r, s = utils.decode_dss_signature(signed)
-    return r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
+    return r.to_bytes(32, "big") + s.to_bytes(32, "big")
+
 
 class exceptions:
     class PyJWTError(Exception):
@@ -72,9 +74,7 @@ def encode(payload, key, algorithm="HS256"):
         if isinstance(key, int):
             key = ec.derive_private_key(key, ec.SECP256R1())
         signature = _to_b64url(
-            _der_to_raw_signature(
-                key.sign(header + b"." + payload, ec.ECDSA(hashes.SHA256()))
-            )
+            _der_to_raw_signature(key.sign(header + b"." + payload, ec.ECDSA(hashes.SHA256())))
         )
 
     return (header + b"." + payload + b"." + signature).decode()
