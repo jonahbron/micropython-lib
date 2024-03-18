@@ -79,9 +79,7 @@ def encode(payload, key, algorithm="HS256"):
     if algorithm == "HS256":
         if isinstance(key, str):
             key = key.encode()
-        signature = _to_b64url(
-            hmac.new(key, header + b"." + payload, hashlib.sha256).digest()
-        )
+        signature = _to_b64url(hmac.new(key, header + b"." + payload, hashlib.sha256).digest())
     elif algorithm == "ES256":
         if not _ec_supported:
             raise exceptions.InvalidAlgorithmError(
@@ -90,9 +88,7 @@ def encode(payload, key, algorithm="HS256"):
         if isinstance(key, int):
             key = ec.derive_private_key(key, ec.SECP256R1())
         signature = _to_b64url(
-            _sig_der_to_jws(
-                key.sign(header + b"." + payload, ec.ECDSA(hashes.SHA256()))
-            )
+            _sig_der_to_jws(key.sign(header + b"." + payload, ec.ECDSA(hashes.SHA256())))
         )
 
     return (header + b"." + payload + b"." + signature).decode()
@@ -113,17 +109,13 @@ def decode(token, key, algorithms=["HS256", "ES256"]):
     except Exception:
         raise exceptions.InvalidTokenError
 
-    if header["alg"] not in algorithms or (
-        header["alg"] != "HS256" and header["alg"] != "ES256"
-    ):
+    if header["alg"] not in algorithms or (header["alg"] != "HS256" and header["alg"] != "ES256"):
         raise exceptions.InvalidAlgorithmError
 
     if header["alg"] == "HS256":
         if isinstance(key, str):
             key = key.encode()
-        calculated_signature = hmac.new(
-            key, parts[0] + b"." + parts[1], hashlib.sha256
-        ).digest()
+        calculated_signature = hmac.new(key, parts[0] + b"." + parts[1], hashlib.sha256).digest()
         if signature != calculated_signature:
             raise exceptions.InvalidSignatureError
     elif header["alg"] == "ES256":
