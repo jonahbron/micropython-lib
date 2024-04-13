@@ -1,8 +1,8 @@
 import os
 from . import Handler
 
-# Author: Stefan Lehmann
 # Source: https://github.com/pfalcon/pycopy-lib/blob/master/logging/logging/handlers.py
+
 
 def try_remove(fn: str) -> None:
     """Try to remove a file if it existst."""
@@ -65,4 +65,4 @@ class RotatingFileHandler(Handler):
         self._counter += s_len
 
 
-__version__ = '0.7.0'
+__version__ = '0.7.5'
