@@ -302,16 +302,16 @@
     },
     {
       "name": "cbor2",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "author": "",
       "description": "",
       "license": "MIT",
       "versions": {
         "py": [
-          "0.1.0"
+          "1.0.0"
         ],
         "6": [
-          "0.1.0"
+          "1.0.0"
         ]
       }
     },
@@ -762,21 +762,6 @@
         ],
         "6": [
           "0.2.3"
-        ]
-      }
-    },
-    {
-      "name": "json",
-      "version": "0.1.0",
-      "author": "",
-      "description": "",
-      "license": "MIT",
-      "versions": {
-        "py": [
-          "0.1.0"
-        ],
-        "6": [
-          "0.1.0"
         ]
       }
     },
@@ -1277,16 +1262,16 @@
     },
     {
       "name": "senml",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": "",
       "description": "SenML serialisation for MicroPython.",
       "license": "MIT",
       "versions": {
         "py": [
-          "0.1.0"
+          "0.1.1"
         ],
         "6": [
-          "0.1.0"
+          "0.1.1"
         ]
       }
     },
@@ -1322,16 +1307,16 @@
     },
     {
       "name": "ssl",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": "",
       "description": "",
       "license": "MIT",
       "versions": {
         "py": [
-          "0.2.0"
+          "0.2.1"
         ],
         "6": [
-          "0.2.0"
+          "0.2.1"
         ]
       }
     },
@@ -1757,5 +1742,5 @@
     }
   ],
   "v": 1,
-  "updated": 1710749991
+  "updated": 1712993738
 }
