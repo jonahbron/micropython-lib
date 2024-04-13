@@ -1,8 +1,8 @@
 import os
 from . import Handler
 
-# Author: Stefan Lehmann
 # Source: https://github.com/pfalcon/pycopy-lib/blob/master/logging/logging/handlers.py
+
 
 def try_remove(fn: str) -> None:
     """Try to remove a file if it existst."""
